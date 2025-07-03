@@ -14,6 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal("fault connect DB")
 	}
+	defer dbPtr.Close()
 
 	err = dbPtr.Ping()
 	if err != nil {

@@ -17,6 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("fault db connect:{%v}", err)
 	}
+	defer dbPtr.Close()
 
 	err = dbPtr.Ping()
 	if err != nil {
