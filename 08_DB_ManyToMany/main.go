@@ -31,13 +31,7 @@ func main() {
 	first_name, last_name := "AAA", "aaa"
 	sl, err := getBooksByAuthor(dbPtr, first_name, last_name)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			log.Printf("empty request result for: {%s %s}", first_name, last_name)
-			return
-		default:
-			log.Fatalf("error exeqution request:{%s}", err)
-		}
+		log.Fatalf("fault request by {%s %s}:{%s}", first_name, last_name, err)
 	}
 	fmt.Printf("%v\n", sl)
 
@@ -45,17 +39,9 @@ func main() {
 	first_name, last_name = "FFF", "fff"
 	sl, err = getBooksByAuthor(dbPtr, first_name, last_name)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			log.Printf("empty request result for: {%s %s}", first_name, last_name)
-			return
-		default:
-			log.Fatalf("error exeqution request:{%s}", err)
-		}
+		log.Fatalf("fault request by {%s %s}:{%s}", first_name, last_name, err)
 	}
-
 	fmt.Printf("%v\n", sl)
-
 }
 
 func createTables(db *sql.DB) error {
