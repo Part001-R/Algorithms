@@ -16,11 +16,13 @@ func main() {
 	// Первая горутина
 	g.Go(func() error {
 		fmt.Println("Запущена первая задача")
+		ta := time.After(2 * time.Second)
 		select {
 		case <-ctx.Done():
+			fmt.Println("Первая задача завершена по контексту")
 			return ctx.Err()
-		case <-time.After(2 * time.Second):
-			fmt.Println("Первая задача завершена")
+		case <-ta:
+			fmt.Println("Первая задача завершена по таймеру")
 			return nil
 		}
 	})
@@ -36,11 +38,13 @@ func main() {
 	// Третья горутина
 	g.Go(func() error {
 		fmt.Println("Запущена третья задача")
+		ta := time.After(1 * time.Second)
 		select {
 		case <-ctx.Done():
+			fmt.Println("Третья задача завершена по контексту")
 			return ctx.Err()
-		case <-time.After(3 * time.Second):
-			fmt.Println("Третья задача завершена")
+		case <-ta:
+			fmt.Println("Третья задача завершена по таймеру")
 			return nil
 		}
 	})

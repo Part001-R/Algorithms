@@ -11,7 +11,8 @@ var (
 	pokemonList = []string{"Pikachu", "Charmander", "Squirtle", "Bulbasaur", "Jigglypuff"}
 	cond        sync.Cond
 	pokemon     string
-	stop        bool
+	stopFin     bool
+	stopFound   bool
 	wg          sync.WaitGroup
 )
 
@@ -22,14 +23,12 @@ func main() {
 	go func() {
 		defer wg.Done()
 		cond.L.Lock()
-		for !stop {
-			for pokemon != "Pikachu" {
-				cond.Wait()
-			}
-			fmt.Println("found Pikachu!")
-			stop = true
-			cond.L.Unlock()
+		for pokemon != "Pikachu" && !stopFin {
+			cond.Wait()
 		}
+		stopFound = true
+		fmt.Println("found Pikachu!")
+		cond.L.Unlock()
 	}()
 
 	wg.Add(1)
@@ -40,9 +39,13 @@ func main() {
 			cond.L.Lock()
 			pokemon = pokemonList[rand.Intn(len(pokemonList))]
 			cond.L.Unlock()
+
+			if stopFound {
+				return
+			}
 			cond.Signal()
 		}
-		stop = true
+		stopFin = true
 		//cond.Broadcast()
 	}()
 
