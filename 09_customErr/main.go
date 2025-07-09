@@ -21,6 +21,14 @@ func main() {
 			fmt.Printf("Код ошибки:{%d}\n", rxErr.Code)
 			fmt.Printf("Сообщение ошибки:{%s}\n", rxErr.Message)
 		}
+
+		err1 := CustomErr1{
+			Code:    0,
+			Message: "делитель равен нулю",
+		}
+		if errors.Is(err, err1) {
+			fmt.Printf("принята ожидаемая ошибка:{%s}\n", err)
+		}
 	} else {
 		fmt.Printf("результат деления:{%d}\n", value)
 	}
