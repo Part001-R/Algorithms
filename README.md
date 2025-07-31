@@ -11,4 +11,5 @@
 + `08_db_manytomany`  - многие ко многим
 + `09_customErr`      - пользовательские ошибки
 + `10_synccond`       - Sync.Cond
-+ `11_errgroup`       - errgroup
++ `11_errgroup`       - 
++ `12_middleware`     - реализация middleware
