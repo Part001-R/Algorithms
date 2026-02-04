@@ -13,3 +13,4 @@
 + `10_synccond`       - Sync.Cond
 + `11_errgroup`       - 
 + `12_middleware`     - реализация middleware
++ `13_constructor`    - конструктор с реализацией геттера
