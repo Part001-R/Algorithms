@@ -14,20 +14,20 @@ func main() {
 
 	url := "http://localhost:8080"
 
-	// Создайте новый запрос
+	// Запрос
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// Установите первую куку
+	// Первая куки
 	cookie1 := &http.Cookie{
 		Name:  "example_cookie",
 		Value: "cookie_value",
 	}
 	req.AddCookie(cookie1)
 
-	// Установите вторую куку с действием на один час
+	// Вторая куки
 	cookie2 := &http.Cookie{
 		Name:    "example_cookie_2",
 		Value:   "cookie_value_2",
@@ -36,19 +36,17 @@ func main() {
 	}
 	req.AddCookie(cookie2)
 
-	// Выполните запрос
+	// Выполнение запроса
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 
-	// Проверка статуса
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("Ошибка: статус %d", resp.StatusCode)
 	}
 
-	// Выводим тело ответа или обрабатываем данные
 	fmt.Println("Запрос выполнен успешно!")
 }
 
