@@ -1,7 +1,7 @@
 package main
 
 import (
-	"e/JWT_HMAC/server/internal/controller"
+	"e/JWT_HMAC_Bearer/server/internal/controller"
 	"log"
 	"net/http"
 

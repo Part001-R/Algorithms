@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -133,19 +134,19 @@ func (c *Cntr) Authentication(w http.ResponseWriter, r *http.Request) {
 
 	// Создание JWT.
 	srcAddr := r.RemoteAddr
-	rawJWT := jwt.NewWithClaims(jwt.SigningMethodRS256, jwt.MapClaims{
+	rawJWT := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"forAddr": srcAddr,                                // Для кого выставляется
 		"exp":     time.Now().Add(2 * time.Minute).Unix(), // Время валидности
 	})
 
-	signJWT, err := rawJWT.SignedString(c.privKey)
+	signJWT, err := rawJWT.SignedString(c.secrKey)
 	if err != nil {
 		log.Printf("Ошибка подписи JWT: <%v>", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Authentication", signJWT)
+	w.Header().Set("Authorization", "Bearer "+signJWT)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -154,21 +155,28 @@ func (c *Cntr) Info(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/jsom")
 
-	rxJWT := r.Header.Get("Authentication")
+	// Выделение JWT из заголовка.
+	rxAuthorization := r.Header.Get("Authorization")
+	rxJWT := strings.Split(rxAuthorization, " ")
+	if len(rxJWT) != 2 {
+		log.Printf("Принят JWT:<%v>. Длинна фрагментов:<%d>, ожидалось = 2\n", rxAuthorization, len(rxJWT))
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
 	// Проверка JWT.
-	jwtToken, err := jwt.Parse(rxJWT, func(t *jwt.Token) (interface{}, error) {
-		// Проверка алгоритма подписи (только RS256)
-		if t.Method.Alg() != "RS256" {
+	jwtToken, err := jwt.Parse(rxJWT[1], func(t *jwt.Token) (interface{}, error) {
+		// Проверка алгоритма подписи (только HS256)
+		if t.Method.Alg() != "HS256" {
 			log.Printf("Запрещённый алгоритм подписи: %s", t.Method.Alg())
 			return nil, jwt.ErrInvalidKey
 		}
 		// Проверка типа метода
-		if _, ok := t.Method.(*jwt.SigningMethodRSA); !ok {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			log.Printf("Некорректный тип метода подписи: %T", t.Method)
 			return nil, jwt.ErrInvalidKey
 		}
-		return c.pubKey, nil
+		return c.secrKey, nil
 	})
 	if err != nil {
 		log.Printf("Ошибка парсинга JWT: <%v>\n", err)
@@ -200,14 +208,11 @@ func (c *Cntr) Info(w http.ResponseWriter, r *http.Request) {
 	var data txData
 	data.LocalTime = time.Now().Format("02-01-2006 15-04-05.000")
 
-	txData, err := json.Marshal(data)
+	// Ответ.
+	err = json.NewEncoder(w).Encode(data)
 	if err != nil {
-		log.Printf("Ошибка сериализации: <%v>", err)
+		log.Printf("Ошибка передачи ответа: <%v>", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
-	// Ответ.
-	w.WriteHeader(http.StatusOK)
-	w.Write(txData)
 }

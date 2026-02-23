@@ -1,7 +1,7 @@
 package main
 
 import (
-	"e/JWT_RSA/server/internal/controller"
+	"e/JWT_RSA_Bearer/server/internal/controller"
 	"log"
 	"net/http"
 
